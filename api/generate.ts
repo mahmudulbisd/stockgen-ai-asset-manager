@@ -25,9 +25,11 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({ model, messages, temperature, response_format }),
     });
 
-    const text = await proxied.text();
-    // Forward status and body as-is (keeps original OpenAI structure)
-    res.status(proxied.status).send(text);
+    const bodyText = await proxied.text();
+    const contentType = proxied.headers.get('content-type') || 'application/json';
+    // Forward original content-type so client can parse consistently
+    res.setHeader('content-type', contentType);
+    res.status(proxied.status).send(bodyText);
   } catch (err: any) {
     console.error('OpenAI proxy error:', err);
     res.status(500).json({ error: 'Proxy request failed' });
