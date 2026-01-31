@@ -1,0 +1,5 @@
+{
+  "name": "StockGen AI Asset Manager",
+  "description": "A high-performance tool for generating SEO-optimized stock photography metadata and AI image prompts using Gemini 3.",
+  "requestFramePermissions": []
+}
