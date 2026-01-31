@@ -1,21 +1,7 @@
 
 import { StockAssetVariation, GeneratorConfig } from "../types";
 
-const getApiKey = (): string => {
-  try {
-    return (window as any).process?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : '') || '';
-  } catch (e) {
-    return '';
-  }
-};
-
 export const generateStockAssets = async (config: GeneratorConfig): Promise<StockAssetVariation[]> => {
-  const apiKey = getApiKey();
-  
-  if (!apiKey) {
-    throw new Error("OpenAI API Key is missing. Please set API_KEY in environment variables.");
-  }
-
   const { niche, temperature, quantity, assets } = config;
 
   // System instructions for Stock SEO Expert
@@ -26,20 +12,18 @@ export const generateStockAssets = async (config: GeneratorConfig): Promise<Stoc
   const userPrompt = `Generate ${quantity} unique variations for the niche: "${niche}". Diversity is key.`;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
+    // Use server-side proxy so the API key stays secret
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: 'gpt-4o',
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
         ],
-        temperature: temperature,
-        response_format: { type: "json_object" }
+        temperature,
+        response_format: { type: 'json_object' }
       })
     });
 
